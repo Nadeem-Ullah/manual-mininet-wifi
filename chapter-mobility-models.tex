@@ -1,0 +1,64 @@
+\chapter{Mobility Models}
+
+\section{Mobility Models Supported}
+Mininet-WiFi supports the following mobility models: \texttt{RandomWalk}, \texttt{TruncatedLevyWalk}, \texttt{RandomDirection}, \texttt{RandomWayPoint}, \texttt{GaussMarkov}, \texttt{ReferencePoint} and \texttt{TimeVariantCommunity}.
+
+\section{How to add Mobility?}
+To use those mobility models you have to call the method net.startMobility() like in \textit{examples/wifiMobilityModel.py}. You may also have to consider the use of the files \textit{examples/wifiMobility.py} and \textit{examples/tracingMobility.py} if you want a different type of mobility. Another alternative is to consider some parameters for specifics mobility models (not mandatory), for example:
+
+\subsubsection{RandomWalk}
+
+\begin{minted}[breaklines]{bash}
+sta1 = net.addStation( ..., min_x=10, max_x=20, min_y=10, max_y=20, constantDistance=1, constantVelocity=1 )
+
+min_x = Minimum X position
+max_x = Maximum X position
+min_y = Minimum Y position
+max_y = Maximum Y position
+constantDistance = the value for the constant distance traveled in each step. Default is 1.0.
+constantVelocity = the value for the constant node velocity. Default is 1.0
+\end{minted}
+
+\subsubsection{RandomDirection}
+
+\begin{minted}[breaklines]{bash}
+sta1 = net.addStation( ..., min_x=10, max_x=20, min_y=10, max_y=20, min_v=1, max_v=2 )
+
+min_x = Minimum X position
+max_x = Maximum X position
+min_y = Minimum Y position
+max_y = Maximum Y position
+min_v = Minimum value for node velocity
+max_v = Maximum value for node velocity
+\end{minted}
+
+\subsubsection{RandomWayPoint}
+
+\begin{minted}[breaklines]{bash}
+sta1 = net.addStation( ..., min_x=10, max_x=20, min_y=10, max_y=20, min_v=1, max_v=2 )
+//min_v and max_v must have different values
+
+min_x = Minimum X position
+max_x = Maximum X position
+min_y = Minimum Y position
+max_y = Maximum Y position
+min_v = Minimum value for node velocity
+max_v = Maximum value for node velocity
+\end{minted}
+
+\subsubsection{GaussMarkov}
+
+\begin{minted}[breaklines]{bash}
+sta1 = net.addStation( ..., min_x=10, max_x=20, min_y=10, max_y=20 )
+
+min_x = Minimum X position
+max_x = Maximum X position
+min_y = Minimum Y position
+max_y = Maximum Y position
+
+\end{minted}
+
+
+\begin{remark}
+Thank you Mark Zeng (n660123@gmail.com) for recommending us the limit of the node motion.
+\end{remark}

@@ -1,0 +1,239 @@
+\chapter{Reproducible Research}
+
+The code and instructions used in this section can be found at \url{https://github.com/ramonfontes/reproducible-research}
+
+\section{SwitchOn 2015}
+\textit{Extended abstract - Towards an Emulator for Software Defined Wireless Networks}\\
+\textbf{}
+\\
+Firstly, you have to get the code at \url{https://github.com/ramonfontes/reproducible-research/blob/master/mininet-wifi/SWITCHON-2015}, then execute it:
+
+\begin{minted}{bash}
+sudo python allWirelessNetworksAroundUs.py
+\end{minted}
+
+\begin{minted}{bash}
+mininet-wifi> xterm sta1 h1
+\end{minted}
+
+\noindent On sta1:
+\begin{minted}[breaklines]{bash}
+ cvlc -vvv v4l2:///dev/video0 --input-slave=alsa://hw:1,0 --mtu 1000 --sout'#transcode{vcodec=mp4v,vb=800,scale=1,acodec=mpga,ab=128,channels=1}: duplicate{dst=display,dst=rtp{sdp=rtsp://10.0.0.10:8080/helmet.sdp}'
+\end{minted}
+
+\noindent On h1:
+\begin{minted}[breaklines]{bash}
+cvlc rtsp://10.0.0.10:8080/helmet.sdp
+\end{minted}
+
+\section{SBRC 2016}
+\textit{DEMO - Mininet-WiFi: Emulação de Redes Sem Fio Definidas por Software com suporte a Mobilidade}
+
+Codes necessary to reproduce this paper are available at \url{https://github.com/ramonfontes/reproducible-research/tree/master/mininet-wifi/SBRC-2016}
+
+\subsection{Case 1 - Simple test}
+\begin{minted}[breaklines]{bash}
+sudo mn --wifi  
+mininet-wifi>sta1 ping sta2  
+mininet-wifi>sta1 iwconfig  
+mininet-wifi>sta2 iwconfig
+\end{minted}
+   
+\subsection{Case 2 (1/2) - Communication among stations and hosts/Verifying flow table}
+\begin{minted}[breaklines]{bash}
+sudo python examples/wifiStationsAndHosts.py  
+mininet-wifi>nodes  
+mininet-wifi>sh ovs-ofctl dump-flows ap1  
+mininet-wifi>sta1 ping h3  
+mininet-wifi>sh ovs-ofctl dump-flows ap1 
+\end{minted}
+
+\subsection{Case 2 (2/2) - Changing the controller (from reference to external controller)}
+
+Open the code examples/wifiStationsAndHosts.py and make the following changes:
+
+\begin{minted}[breaklines]{bash}
+from: net = Mininet( controller=Controller, link=TCLink, switch=OVSKernelSwitch )  
+to: net = Mininet( controller=RemoteController, link=TCLink, switch=OVSKernelSwitch )  
+from: c0 = net.addController('c0', controller=Controller, ip='127.0.0.1' )  
+to: c0 = net.addController('c0', controller=RemoteController, ip='127.0.0.1' )  
+sudo python examples/wifiStationsAndHosts.py  
+mininet-wifi>sta1 ping h3  #Why there is no communication? 
+\end{minted}
+  
+\subsection{Case 3 - Handover}
+\begin{minted}[breaklines]{bash}
+sudo python examples/handover.py  
+mininet-wifi>sta1 iwconfig  
+mininet-wifi>sta1 ping sta2  #here I suggest you wait sta1 reaches ap2 before going to the next step
+mininet-wifi>sta1 iwconfig  
+\end{minted}
+ 
+\subsection{Case 4 - Changes at runtime}
+\begin{minted}[breaklines]{bash}
+sudo python examples/wifiPosition.py  
+mininet-wifi>sta1 iwconfig   
+mininet-wifi>sta1 ping sta2  
+mininet-wifi>py sta1.moveNodeTo('70,40,0')  
+mininet-wifi>sta1 iwconfig  
+mininet-wifi>sta1 ping sta2  
+mininet-wifi>py ap1.setRange(60)  
+mininet-wifi>sta1 iwconfig  
+mininet-wifi>sta1 ping sta2  
+\end{minted}
+
+\subsection{Case 5 - Bridging physical and virtual emulated environments}
+
+\begin{minted}[breaklines]{bash}
+sudo systemctl stop network-manager
+\end{minted}
+
+Edit sbrc.py:
+
+\begin{minted}[breaklines]{bash}
+from: phyap1 = net.addPhysicalBaseStation( 'phyap1', ssid= 'SBRC16-MininetWiFi', mode= 'g', channel= '1', position='50,115,0', wlan='wlan11' )  
+to: wlan11 to your usb wlan interface.
+\end{minted}
+
+Then,
+
+\begin{minted}[breaklines]{bash}
+sudo python sbrc.py
+\end{minted}
+
+At this moment users attending the conference will be invited to connect their mobile devices into the physical/emulated environment.
+
+\section{SIGCOMM 2016}{\label{sec:sigcomm2016}}
+\textit{Demo: Mininet-WiFi: A Platform for Hybrid Physical-Virtual Software-Defined Wireless Networking Research}
+
+Requirements to reproduce:
+\begin{itemize}
+\item WiFi interface + (other WiFi or ethernet interface)
+\item Floodlight OpenFlow controller
+\item ofsoftswitch13 (you may install it with \textit{util/install.sh -3f}) - https://github.com/CPqD/ofsoftswitch13
+\item Speedtest-cli
+\item Codes are available at \url{https://github.com/ramonfontes/reproducible-research/tree/master/mininet-wifi/SIGCOMM-2016}
+\end{itemize}
+
+Important (changes in code - You have to set both Internet and wlan interfaces):
+\begin{minted}[breaklines]{bash}
+internetIface = 'eth0' # wired/wireless card.
+usbDongleIface = 'wlan0' # wifi interface.
+\end{minted}
+
+\noindent Next, executing the Floodlight OpenFlow controller: 
+\begin{minted}[breaklines]{bash}
+sudo java -jar target/floodlight.jar
+\end{minted}
+
+\noindent Then,
+\begin{minted}[breaklines]{bash}
+   sudo py hybridVirtualPhysical.py
+   mininet-wifi> sh ./rule.hybridVirtualPhysical
+\end{minted}
+
+Despite the content of \textit{rule.hybridVirtualPhysical} is included in \textit{hybridVirtualPhysical.py}, we have faced some troubles in floodlight controller. Thus, probably you have to execute rule.hybridVirtualPhysical after executing hybridVirtualPhysical.py.
+
+Now, stations should be able to communicate with each other and with the Internet. You may use any station connected to any Access Point and try it out:
+\begin{minted}[breaklines]{bash}
+   mininet-wifi>xterm $station 
+   $station>speedtest-cli
+\end{minted}
+Using speedtest-cli you can test both Download and Upload speed of your Internet connection. The available bandwidth is controlled by OpenFlow meter entries.\\
+
+\noindent There is a web server accessible at 10.0.0.111 and according rules applied in rule.hybridVirtualPhysical, if you access 10.0.0.109 the traffic will be redirect to 10.0.0.111.\\
+\\
+\\
+\textbf{Useful commands:}
+\begin{minted}[breaklines]{bash}
+sta1 iw dev sta1-wlan0 mpath dump #verify mesh routing information
+sh dpctl unix:/tmp/ap3 stats-flow
+sh dpctl unix:/tmp/ap3 stats-meter
+sh dpctl unix:/tmp/ap3 meter-config
+\end{minted}
+
+\section{From Theory to Experimental Evaluation: Resource Management in Software-Defined Vehicular Networks}
+
+Firstly, you have to get vanet.py at \url{https://github.com/ramonfontes/reproducible-research/blob/master/mininet-wifi/IEEE-Access-2017/vanet.py}
+
+\begin{minted}[breaklines]{bash}
+   sudo python vanet.py
+\end{minted}
+
+\noindent Please consider to watch: https://www.youtube.com/watch?v=kO3O9EwrP\_s
+
+\section{The Computer Journal - How far can we go? Towards
+Realistic Software-Defined Wireless
+Networking Experiments}
+
+Codes necessary to reproduce this paper are available at \url{https://github.com/ramonfontes/reproducible-research/tree/master/mininet-wifi/The-Computer-Journal-2017}
+
+\subsection{\textit{Wireless n-Casting}}
+\textbf{Requirements:\\}
+\texttt{Floodlight} controller.
+\\
+\\
+In order to reproduce this case, please follow the instructions below:
+\\
+\\
+First, run the controller:
+\begin{minted}[breaklines]{bash}
+sudo java -jar target/floodlight.jar
+\end{minted}
+
+
+\noindent start the topology:
+\begin{minted}[breaklines]{bash}
+sudo python ncasting.py
+\end{minted}
+
+\noindent and finally install the rules:
+\begin{minted}[breaklines]{bash}
+sudo python ncasting-controller.py
+\end{minted}
+
+\subsection{\textit{Multipath TCP}}
+\textbf{Requirements:\\}
+You have to install \texttt{mptcp} and \texttt{ifstat} to reproduce this use case. \\
+\\
+In order to allow the communication we use pox controller with spanning tree enabled. This command can be used to enable spanning tree:
+\begin{minted}[breaklines]{bash}
+./pox.py forwarding.l2_learning openflow.spanning_tree --hold-down log.level --DEBUG samples.pretty_log openflow.discovery host_tracker info.packet_dump
+\end{minted}
+
+\noindent Then, start the environment in a new terminal and run some commands with xterm:
+\begin{minted}[breaklines]{bash}
+sudo python mptcp.py   
+mininet-wifi>xterm sta1 sta1 h10 h10  
+Node: h10 (terminal1)$ifstat
+Node: sta1 (terminal1)$ifstat
+Node: h10 (terminal2)$iperf -s
+Node: sta1 (terminal2)$iperf -c 192.168.1.254 
+\end{minted}
+
+\subsection{\textit{Hybrid Physical-Virtual Environment}}
+See Section~\ref{sec:sigcomm2016}.
+
+\subsection{\textit{SSID-based Flow Abstraction}}
+\textbf{Requirements:\\}
+ofsoftswitch13
+\\
+\\
+In order reproduce this case you have to run the following code:
+\begin{minted}[breaklines]{bash}
+sudo python forwardingBySSID.py
+\end{minted}
+
+\noindent Then, you may run any application (e.g., Iperf) to test the available bandwidth for any SSID. Alternatively, you might run dpctl to verify meter table configuration.
+\begin{minted}[breaklines]{bash}
+mininet-wifi> sh dpctl unix:/tmp/ap1 meter-config
+\end{minted}
+
+\subsection{\textit{EXPERIMENTAL VALIDATION: Propagation Model}}
+Consider to use the file propagationModelCase.py if you want to reproduce the results. 
+
+\subsection{\textit{EXPERIMENTAL VALIDATION: Simple File Transfer}}
+Consider to use the files \textit{fileTransferring.py} and \textit{fileTransferring.cc} if you want to reproduce the results. 
+
+\subsection{\textit{EXPERIMENTAL VALIDATION: Replaying Network Conditions}}
+Consider to use files into the directory replayingNetwork/ if you want to reproduce the results.

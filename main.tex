@@ -1,0 +1,147 @@
+\documentclass[11pt,fleqn]{book} % Default font size and left-justified equations
+\usepackage{minted}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage[top=3cm,bottom=3cm,left=3.2cm,right=3.2cm,headsep=10pt,letterpaper]{geometry} % Page margins
+\setlength{\headheight}{25.85pt} 
+
+\usepackage{xcolor} % Required for specifying colors by name
+\definecolor{ocre}{RGB}{52,177,201} % Define the orange color used for highlighting throughout the book
+
+% Font Settings
+\usepackage{avant}
+\usepackage{mathptmx}
+\usepackage{url}
+\newcounter{mycounter}
+\setcounter{mycounter}{1}
+\newcounter{question}
+\setcounter{question}{1}
+
+\usepackage{microtype} % Slightly tweak font spacing for aesthetics
+\usepackage[utf8]{inputenc} % Required for including letters with accents
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+
+\renewcommand{\lstlistingname}{Code}
+
+% Bibliography
+%\usepackage[style=alphabetic,sorting=nyt,sortcites=true,autopunct=true,autolang=hyphen,hyperref=true,abbreviate=false,backref=true,backend=biber]{biblatex}
+%\addbibresource{bibliography.bib} % BibTeX bibliography file
+%\defbibheading{bibempty}{}
+
+\input{structure}
+\begin{document}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ %
+  backgroundcolor=\color{white},   %  choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,	                   % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Python,                 % the language of the code
+  otherkeywords={*,...},           % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2,	                   % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\begingroup
+\thispagestyle{empty}
+
+
+\vspace*{1cm}
+\centering
+\par\normalfont\fontsize{35}{35}\sffamily\selectfont
+\centering
+\textbf{The User Manual}\\
+{\LARGE }\par % Book title
+\vspace*{4cm}
+\centering
+\includegraphics[scale=.35]{logo} % Image background
+\\
+\vspace*{3cm}
+{\large Ramon dos Reis Fontes and Christian Esteve Rothenberg }\par % Author name
+\endgroup
+
+%----------------------------------------------------------------------------------------
+%	COPYRIGHT PAGE
+%----------------------------------------------------------------------------------------
+
+\newpage
+~\vfill
+\thispagestyle{empty}
+
+%\noindent Copyright \copyright\ 2014 Andrea Hidalgo\\ % Copyright notice
+
+\noindent \textsc{Information \& Networking Technologies Research \& Innovation Group  (INTRIG)} \\
+\noindent \textsc{Department of Computer Engineering and Industrial Automation (DCA)}\\
+\noindent \textsc{School of Electrical and Computer Engineering (FEEC)}\\
+\noindent \textsc{University of Campinas(UNICAMP) - Brazil}\\
+
+\noindent \textsc{github.com/intrig-unicamp/mininet-wifi}\\ % URL
+
+\noindent Mininet-Wifi is being developed as a clean extension of the  high-fidelity Mininet emulator by adding the new abstractions and classes to support wireless NICs and emulated links while conserving all native lightweight virtualization and OpenFlow/SDN features.\\ % License information
+
+\noindent \textit{May 2017} % Printing/edition date
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS
+%----------------------------------------------------------------------------------------
+
+\chapterimage{logo.png} % Table of contents heading image
+
+\pagestyle{empty} % No headers
+
+\tableofcontents % Print the table of contents itself
+
+%\cleardoublepage % Forces the first chapter to start on an odd page so it's on the right
+
+\pagestyle{fancy} % Print headers again
+
+\chapterimage{logo.png}
+\include{chapter-about}
+\chapterimage{logo.png}
+\include{chapter-mobility-models}
+\chapterimage{logo.png}
+\include{chapter-propagation-models}
+\chapterimage{logo.png}
+\include{chapter-replaying-traces}
+\chapterimage{logo.png}
+\include{chapter-tutorial}
+\chapterimage{logo.png}
+\include{chapter-exercises}
+\chapterimage{logo.png}
+\include{chapter-reproducing}
+\chapterimage{logo.png}
+\include{chapter-publications}
+\chapterimage{logo.png}
+\include{chapter-citations}
+\chapterimage{logo.png}
+\include{chapter-ack}
+\chapterimage{logo.png}
+\include{appendix}
+
+\end{document}
