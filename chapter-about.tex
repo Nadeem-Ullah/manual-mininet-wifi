@@ -74,11 +74,10 @@ Both stations and access points use \texttt{cfg80211} to communicate with the wi
 \begin{itemize}
 \item mininet/wifiAdHocConnectivity.py - checking adhoc pairs
 \item mininet/wifiAssociationControl.py - association Control techniques
-\item mininet/wifiChannel.py - channel details
+\item mininet/wifiLink.py - link details
 \item mininet/wifiDevices.py - specification of real devices
 \item mininet/wifiMeshRouting.py - wireless mesh routing
 \item mininet/wifiMobility.py - mobility parameters
-\item mininet/wifiMobilityModels.py - mobility models
 \item mininet/wifiModule.py - module 
 \item mininet/wifiPlot.py - graphs
 \item mininet/wifiPropagationModels.py - propagation models
@@ -104,7 +103,75 @@ Both stations and access points use \texttt{cfg80211} to communicate with the wi
 \item \textit{startMobility:} useful when you want to use a mobility model.
 \end{itemize}
 
+\section{Wireless medium emulation}
 
+Mininet-WiFi relies on two approaches for simulating the wireless medium: tc and wmediumd.
+
+\subsection{Traffic Control (TC)}
+
+Tc (traffic control) is the user-space utility program used to configure the Linux kernel packet scheduler. Used to configure Traffic Control in the Linux kernel, Traffic Control consists of the following:
+
+\begin{itemize}
+  \item \textbf{Shaping:} When traffic is shaped, its rate of transmission is under control. Shaping may be more than lowering the available bandwidth - it is also used to smooth out bursts in traffic for better network behaviour. Shaping occurs on egress.
+  \item \textbf{Scheduling:} By  scheduling  the  transmission  of  packets it is possible to improve interactivity for traffic  that  needs  it  while  still guaranteeing  bandwidth  to  bulk  transfers. Reordering is also called prioritizing, and happens only on egress.
+  \item \textbf{Policing:} Where shaping deals with transmission of traffic, policing  pertains to traffic arriving. Policing thus occurs on ingress.
+  \item \textbf{Dropping:} Traffic exceeding a set bandwidth may also be dropped forthwith, both on ingress and on egress.
+\end{itemize}
+
+The aforementioned properties have been used to apply values for bandwidth, loss, latency and delay in Mininet-WiFi. Tc was the first approach adopted in Mininet-WiFi for simulating the wireless medium.
+
+\subsubsection{Intermediate Functional Block (IFB) Devices}\index{ifb}\label{ifb}
+
+There are two modes of traffic shaping: \texttt{ingress} and \texttt{egress}. Ingress handles incoming traffic and egress outgoing traffic. Linux does not support shaping/queuing on ingress, but only policing. Therefore IFB exists, which we can attach to the ingress queue while we can add any normal queuing like as egress queue on the IFB device.
+
+Intermediate Functional Block (IFB) is an alternative to tc filters for handling ingress traffic, by redirecting it to a virtual interface and treat is as egress traffic. IFB is supported by calling net.useIFB() just after adding all nodes and before calling net.configureWifiNodes(). Further information about IFB is available at \url{http://shorewall.net/traffic\_shaping.htm\#IFB}.
+
+The main reason for ingress traffic shaping in Mininet-WiFi is that if the user want to measure the throughput between two nodes using a tool like Iperf\footnote{https://iperf.fr/}, both client and server will achieve different results. For example, imagine the following topology where the distance between sta1 and ap1 is greater that sta2 and ap1:
+
+\begin{minted}{bash}
+                     sta1 <----------> ap1 <---> sta2
+\end{minted}
+
+Acting as a server, both sta1 and sta2 will achieve higher throughput if sta1 was acting as a client. This happens due the capacity of tc to handle only egress traffic. By using IFB, the correct value will be present independently of the way of the traffic.
+
+\subsubsection{Customizing Equations}\index{equation}
+When a node is in motion different values for bandwidth, latency, loss and delay are applied based on equations. Those equations can be customized by calling setChannelEquation(), for instance:
+
+\begin{minted}[breaklines]{bash}
+#dist = distance between receiver and transmitter
+#custombw = is a default value for bw which takes into account the RSSI
+net.setChannelEquation(bw='value.rate * (1.1 ** -dist)', loss='(dist * 2) / 100', delay='(dist / 10) + 1', latency='2 + dist')
+\end{minted}
+             
+
+\subsection{Wmediumd}\index{wmediumd}\label{wmediumd}
+The kernel module mac80211\_hwsim uses the same virtual medium for all wireless nodes. This means all nodes are internally in range of each other and they can be discovered in a wireless scan on the virtual interfaces. Mininet-WiFi simulates their position and wireless ranges by assigning stations to other stations or access points and revoking these wireless associations. If wireless interfaces should be isolated from each other (e.g. in adhoc or mesh networks) a tool like \underline{\href{https://github.com/bcopeland/wmediumd}{wmediumd}}\footnote{https://github.com/bcopeland/wmediumd} is required. It uses a kind of a dispatcher to permit or deny the transfer of packets from one interface to another.
+
+A small helper to support wmediumd was initially developed by Patrick Große\footnote{https://github.com/patgrosse/wmediumd} and it was included in Mininet-WiFi. %At the first release It supported two modes: \textit{dynamic} and \textit{static} mode.
+
+%\subsubsection{Dynamic mode}
+%This mode should be the best choice in most use cases. It requires the input of Mininet-WiFi interfaces as Python objects and retrieves the MAC addresses which are required for wmediumd automatically from the Mininet API.
+
+%\subsubsection{Static mode}
+%The static mode uses the MAC addresses that have been provided. In most cases the dynamic mode is the one to use. The advantage of the static mode is that no station objects are required and the data could be provided prior to the start of Mininet-WiFi.
+
+%\noindent Afterwards, we added support to interference. The support to interference improved the helper in such way that wmediumd is able to capture the position of nodes from Mininet-WiFi and it calculates the signal level based on the distance between source and destination by relying on the log distance propagation model.
+
+\subsubsection{Installation of wmediumd}
+It is required that wmediumd can be called using the command \texttt{wmediumd}. That means it should be located in \texttt{/usr/bin} or any other path that is available through the PATH enviroment variable.\\
+wmediumd can be automatically installed using the \texttt{-l} option on \texttt{util/install.sh}. This will copy the binary to \texttt{/usr/bin/wmediumd}.
+
+
+\subsubsection{Traffic control \textit{versus} Wmediumd}
+Wmediumd has been shown to be the best approach for the simulation of the wireless medium. Some advantages include:
+
+\begin{itemize}
+  \item It isolates the wireless interfaces from each other
+  \item It decides when the association has to be evoked based on the signal level
+  \item Values for bandwidth, loss, latency and delay are applied relying in a matrix. This matrix implements an option to determine PER (packet error rate) with outer matrix
+defined in IEEE 802.11ax. The matrix is defined in Appendix 3 of
+\textit{11-14-0571-12 TGax Evaluation Methodology}\footnote{\url{https://mentor.ieee.org/802.11/dcn/14/11-14-0571-12-00ax-evaluation-methodology.docx}}.
+\end{itemize}
 
 \section{Creating Network}\index{creatingNetwork}
 
@@ -181,7 +248,7 @@ If you are just beginning to write scripts for Mininet-WiFi, you can use the exa
     mininet-wifi>py ap1.params['associatedStations']
 \end{minted}
 
-\subsection{Saving information}\index{saveinginfo}
+\subsection{Setting information}\index{saveinginfo}
 
 You might want to save node parameters to a text file. To do so set \textbf{recordNodeParams} as True, for example:
 \begin{minted}{bash}
@@ -228,7 +295,15 @@ The key length should be 5, 13, or 16 characters (for ASCII WEP key), or 10, 26,
 The example below enables 802.11r.
 
 \begin{minted}[breaklines]{bash}
-    ap1 = net.addAccessPoint( 'ap1', ssid="simplewifi", mode="g", channel="6", passwd='123456789a', encrypt='wpa2', ieee80211r='yes', mobility_domain='a1b2'
+    ap1 = net.addAccessPoint( 'ap1', ... passwd='123456789a', encrypt='wpa2', ieee80211r='yes', mobility_domain='a1b2'
+\end{minted}
+
+\subsection{Support to IEEE 8021x}\index{8021x}
+
+The example below enables 8021x.
+
+\begin{minted}[breaklines]{bash}
+    ap1 = net.addAccessPoint( 'ap1', ... mode="8021x", encrypt='wpa2', enable_radius='yes'...
 \end{minted}
 
 \subsection{Support to bgscan (Background scanning)}\index{bgscan}
@@ -255,7 +330,7 @@ database: \textit{<database file name>}
 Mininet-WiFi supports the interference model provided by wmediumd. An example about how to enable interference is given below.
 
 \begin{minted}[breaklines]{bash}
-    net = Mininet( ... useWmediumd=True, enable_interference=True )
+    net = Mininet( ... enable_wmediumd=True, enable_interference=True )
 \end{minted}
 
 The interference model implemented in wmediumd relies on CCA THRESHOLD (Clear Channel Assessment). The CCA is used by the MAC layer to determine (i) if the channel is clear for transmitting data, and (ii) for determining when there is incoming data. Evaluation of CCA is made by the PHY layer and the resulting assessment is communicated to the MAC layer via the PHY-CCA.indicate service primitive. This primitive can either be set to IDLE, when the channel is assessed to be clear, or BUSY when the channel is assessed to be in use.
@@ -284,91 +359,7 @@ The mac80211 subsystem in the linux kernel supports multiple wireless interfaces
     sta1 = net.addStation( 'sta1', nvif=2 )
 \end{minted}
 
-\subsection{Customizing Equations}\index{equation}
-When a node is moving different values for bandwidth, latency, loss and delay are applied based on equations. Those equations can be customized by calling setChannelEquation(), for example:
 
-\begin{minted}[breaklines]{bash}
-#dist = distance between receiver and transmitter
-#custombw = is a default value for bw which takes into account the RSSI
-    net.setChannelEquation(bw='value.rate * (1.1 ** -dist)', loss='(dist * 2) / 100', delay='(dist / 10) + 1', latency='2 + dist')
-\end{minted}
-
-\subsection{Integration with Intermediate Functional Block (IFB) Devices}\index{ifb}\label{ifb}
-
-Intermediate Functional Block (IFB) is an alternative to tc filters for handling ingress traffic, by redirecting it to a virtual interface and treat is as egress traffic. IFB is supported by calling net.useIFB() just after adding all nodes and before calling net.configureWifiNodes().
-\\
-Further information about IFB is available at \url{http://shorewall.net/traffic\_shaping.htm\#IFB}.
-
-
-
-\subsection{Integration with wmediumd}\index{wmediumd}\label{wmediumd}
-The kernel module mac80211\_hwsim uses the same virtual medium for all wireless nodes. This means all nodes are internally in range of each other and they can be discovered in a wireless scan on the virtual interfaces. Mininet-WiFi simulates their position and wireless ranges by assigning stations to other stations or access points and revoking these wireless associations. If wireless interfaces should be isolated from each other (e.g. in adhoc or mesh networks) a tool like \underline{\href{https://github.com/bcopeland/wmediumd}{wmediumd}}\footnote{https://github.com/bcopeland/wmediumd} is required. It uses a kind of a dispatcher to permit or deny the transfer of packets from one interface to another.\\
-\\
-Mininet-WiFi contains a small helper that should support when using wmediumd. It is located in \texttt{wmediumdConnector.py}. Two modes can be used when using this connector: dynamic and static mode.
-
-\subsubsection{Dynamic mode}
-This mode should be the best choice in most use cases. It requires the input of Mininet interfaces as Python objects and retrieves the MAC addresses which are required for wmediumd automatically from the Mininet API.\\
-%\textbf{Please have in mind:} Even though it is called dynamic mode it does not mean that changes to the MAC addresses will be directed to wmediumd. Once it is initialized the configuration cannot be changed anymore which implies this is not suitable for mobility and manual position or range changes etc.\\
-\\
-At first you have to enter the connection properties for wmediumd. The following code snippet would create a linear topology in which sta1 can reach sta2, sta2 can reach sta3 (and vice versa) but sta1 can't reach sta3 directly.
-\begin{minted}[breaklines]{bash}
-sta1wlan0 = DynamicWmediumdIntfRef(sta1)
-sta2wlan0 = DynamicWmediumdIntfRef(sta2)
-sta3wlan0 = DynamicWmediumdIntfRef(sta3)
-
-intfrefs = [sta1wlan0, sta2wlan0, sta3wlan0]
-links = [
-  WmediumdLink(sta1wlan0, sta2wlan0, 15),
-  WmediumdLink(sta2wlan0, sta1wlan0, 15),
-  WmediumdLink(sta2wlan0, sta3wlan0, 15),
-  WmediumdLink(sta3wlan0, sta2wlan0, 15)]
-WmediumdConn.set_wmediumd_data(intfrefs, links)
-\end{minted}
-The variables \texttt{staX-wlan0} are references to interfaces of Mininet-WiFi stations. If only the station is provided in the constructor, the default interface will be used. Other interfaces can be specified by adding an extra parameter containing the name of the interface.\\
-The variable \texttt{intfrefs} has to contain all interfaces that should be monitored by wmediumd. If an interface is present in the link list, but not in the \texttt{intfrefs} list, an exception will be raised.\\
-\texttt{links} has to contain all pairs of interfaces that should be able to reach the other one. Note: this can be asymmetrical, for example packets from sta1wlan0 could reach sta2wlan0 but not vice versa. If you want the connections to be symmetrical both pairs have to be present. The third parameter is the signal-noise-ratio which is used by wmediumd to simulate packet loss. Packet loss depends on the packet size and TX rate.\\
-\\
-If the Mininet-WiFi network is already started use the following method to start wmediumd:
-\begin{minted}[breaklines]{bash}
-WmediumdConn.connect_wmediumd_after_startup()
-\end{minted}
-%An example is located in \texttt{examples/wmediumd\_ibss\_dynamic.py}.\\
-%\\
-This has the disadvantage that some tools like \texttt{iw} use a cache and the stations previously discovered may appear even if they cannot be reached anymore.\\
-To prevent this you can use another method:
-\begin{minted}[breaklines]{bash}
-WmediumdConn.connect_wmediumd_on_startup()
-\end{minted}
-This will hook into Mininet-WiFi and will start wmediumd right after the mac80211\_hwsim module is initialized. The method has to be called between the creation of stations (because the station objects are required) and before the net is started or any wireless associations are done.\\
-\\
-An example is located in \texttt{examples/wmediumd\_ibss\_dynamic\_intercept.py}.
-\\
-Consider to take examples/wmediumd\_mobility.py as example if you want to work with mobility.
-
-\subsubsection{Static mode}
-The static mode uses the MAC addresses that have been provided. In most cases the dynamic mode is the one to use. The advantage of the static mode is that no station objects are required and the data could be provided prior to the start of Mininet-WiFi.
-\begin{minted}[breaklines]{bash}
-sta1wlan0 = StaticWmediumdIntfRef('sta1', 'sta1-wlan0', '02:00:00:00:00:00')
-sta2wlan0 = StaticWmediumdIntfRef('sta2', 'sta2-wlan0', '02:00:00:00:01:00')
-sta3wlan0 = StaticWmediumdIntfRef('sta3', 'sta3-wlan0', '02:00:00:00:02:00')
-
-intfrefs = [sta1wlan0, sta2wlan0, sta3wlan0]
-links = [
-  WmediumdLink(sta1wlan0, sta2wlan0, 15),
-  WmediumdLink(sta2wlan0, sta1wlan0, 15),
-  WmediumdLink(sta2wlan0, sta3wlan0, 15),
-  WmediumdLink(sta3wlan0, sta2wlan0, 15)]
-WmediumdConn.set_wmediumd_data(intfrefs, links)
-\end{minted}
-Station and interface names don't need to match real stations and real interfaces. They are just used to create an identifier that is used internally. The combination of station and interface name has to be unique.\\
-\\
-After the data is set, wmediumd can be started just like in dynamic mode.\\
-\\
-An example is located in \texttt{examples/wmediumd\_ibss\_static.py}.
-
-\subsubsection{Installation of wmediumd}
-It is required that wmediumd can be called using the command \texttt{wmediumd}. That means it should be located in \texttt{/usr/bin} or any other path that is available through the PATH enviroment variable.\\
-wmediumd can be automatically installed using the \texttt{-l} option on \texttt{util/install.sh}. This will copy the binary to \texttt{/usr/bin/wmediumd}.
 
 
 %\section{Known Issues}\index{issues}
@@ -431,4 +422,7 @@ Yes, it is possible. You have to call the method below before creating any link 
 \begin{minted}[breaklines]{bash}
     net.plotNode(h1, position='10,10,0')
 \end{minted}
+
+\item \textit{The mode N supports booth 2.4 and 5Ghz. How can I make a choice between 2.4 or 5Ghz?}
+\textit{Answer}: You have to set band=2.4 or band=5 when you add an AP.
 \end{itemize}
