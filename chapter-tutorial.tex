@@ -591,7 +591,7 @@ The examples I show below are useful for gathering information about stations an
 To see the range of an access point or station, call the \texttt{range} function. Call it using the name of the node followed by the function as shown below for access point \texttt{ap1}:
 
 \begin{minted}{bash}
-    mininet-wifi> py ap1.range
+    mininet-wifi> py ap1.params['range']
     20
 \end{minted}
     
@@ -710,10 +710,10 @@ The Mininet-WiFi Python API adds new methods that allow the user to create stati
 To move a station in a straight line, use the \texttt{net.StartMobility} and \texttt{net.mobility} methods. See the example script \texttt{wifiMobilty.py}. For example, to move a station from one position to another over a period of 60 seconds, add the following lines to your script:
 
 \begin{minted}{bash}
-    net.startMobility( startTime=0 )
+    net.startMobility( time=0 )
     net.mobility( 'sta1', 'start', time=1, position='10,20,0' )
     net.mobility( 'sta1', 'stop', time=59, position='30,50,0' )
-    net.stopMobility( stopTime=60 )
+    net.stopMobility( time=60 )
 \end{minted}
 
     
@@ -721,13 +721,13 @@ To move a station in a straight line, use the \texttt{net.StartMobility} and \te
 Mininet-WiFi can also automatically move stations around based on predefined mobility models. See the example script \texttt{wifiMobilityModel.py}. Available mobility models are: \texttt{RandomWalk}, \texttt{TruncatedLevyWalk}, \texttt{RandomDirection}, \texttt{RandomWayPoint}, \texttt{GaussMarkov}, \texttt{ReferencePoint}, and \texttt{TimeVariantCommunity}. For example, to move a station around in an area 60 meters by 60 meters with a minimum velocity of 0.1 meters per second and a maximum velocity of 0.2 meters per second, add the following line to your script:
 
 \begin{minted}[breaklines]{bash}
-    net.startMobility(startTime=0, model='RandomDirection', max_x=60, max_y=60, min_v=0.1, max_v=0.2)
+    net.startMobility(time=0, model='RandomDirection', max_x=60, max_y=60, min_v=0.1, max_v=0.2)
 \end{minted}    
 
 Mininet-WiFi will automatically connect and disconnect stations to and from access points based on either calculated signal strength or load level. See the example script \texttt{wifiAssociationControl.py}. To use association control, add the \texttt{AC} parameter to the \texttt{net.startMobility} call. For example, to switch access points based on the “least loaded first” criteria, add the following line to your script:
 
 \begin{minted}[breaklines]{bash}
-    net.startMobility(startTime=0, model='RandomWayPoint', max_x=140, max_y=140, min_v=0.7, max_v=0.9, AC='llf')
+    net.startMobility(time=0, model='RandomWayPoint', max_x=140, max_y=140, min_v=0.7, max_v=0.9, AC='llf')
 \end{minted}
 
 The valid values for the \texttt{AC} parameter are:

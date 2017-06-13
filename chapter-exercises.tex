@@ -142,8 +142,8 @@ Alternatively, a new approach called wmediumd has been implemented, a wireless m
 
 \noindent Open examples/wifiMobilityModel.py with any text editor and change the velocity of stations as below:
 \begin{minted}[breaklines]{bash}
-   from: net.startMobility(startTime=0, model='RandomDirection', max_x=100, max_y=100, min_v=0.5, max_v=0.8)
-   to: net.startMobility(startTime=0, model='RandomDirection', max_x=100, max_y=100, min_v=0.1, max_v=0.1)
+   from: net.startMobility(time=0, model='RandomDirection', max_x=100, max_y=100, min_v=0.5, max_v=0.8)
+   to: net.startMobility(time=0, model='RandomDirection', max_x=100, max_y=100, min_v=0.1, max_v=0.1)
 \end{minted}
 
 \noindent Run examples/wifiMobilityModel.py and change the signal range of ap1:

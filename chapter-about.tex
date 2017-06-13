@@ -257,27 +257,27 @@ You might want to save node parameters to a text file. To do so set \textbf{reco
 
 \subsection{Changes at runtime}\index{changeatruntime}
 
-\noindent \textit{setting the position:}
+\noindent \textit{setting the position (coord x, y, z):}
 \begin{minted}{bash}
-    mininet-wifi>py sta1.moveNodeTo('40,20,40')
+    mininet-wifi>py sta1.setPosition('40,20,40')
 \end{minted}
 
-\noindent \textit{setting up the antenna gain:}
+\noindent \textit{setting up the antenna gain (dBm):}
 \begin{minted}{bash}
     mininet-wifi>py sta1.setAntennaGain('sta1-wlan0', 5)
 \end{minted}
 
-\noindent \textit{setting the signal range:}
+\noindent \textit{setting the signal range (meters):}
 \begin{minted}{bash}
     mininet-wifi>py sta.setRange(100)
 \end{minted}
 
-\noindent \textit{setting Tx Power:}
+\noindent \textit{setting Tx Power (dBm):}
 \begin{minted}{bash}
     mininet-wifi>py sta1.setTxPower('sta1-wlan0', 10)
 \end{minted}
 
-\noindent \textit{moving association to ap1:}
+\noindent \textit{changing association to ap1:}
 \begin{minted}{bash}
     mininet-wifi>py sta1.moveAssociationTo('sta1-wlan0', ap1)
 \end{minted}
