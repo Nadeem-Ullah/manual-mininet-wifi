@@ -57,7 +57,7 @@ In general, you will learn in this chapter how the Mininet-WiFi wireless network
 
 \noindent Running an example with the command below:
 \begin{minted}{bash}
-    sudo python examples/wifiPosition.py
+    sudo python examples/position.py
 \end{minted}
 
 
@@ -116,7 +116,7 @@ What can we conclude?  }
 \subsection{Activity \themycounter{}: Customizing the Wireless Channel}
 	
 Mininet-WiFi relies on the configuration of Linux TC (by default) to
-control the wireless channel properties, such as \textit{bandwidth}, \textit{packet loss}, \textit{delay} and \textit{latency}. Please see the equations in \textit{mininet/wifiChannel.py} (refer to equationBW, equationLoss, equationDelay and equationLatency. Those equations can be customized by calling setChannelEquation(), for example:
+control the wireless channel properties, such as \textit{bandwidth}, \textit{packet loss}, \textit{delay} and \textit{latency}. Please see the equations in \textit{mininet/wifiLink.py} (refer to equationBW, equationLoss, equationDelay and equationLatency. Those equations can be customized by calling setChannelEquation(), for example:
 
 \begin{minted}[breaklines]{bash}
     net.setChannelEquation(bw='value.rate * (1.1 ** -dist)', loss='(dist * 2)/100', delay='(dist / 10) + 1', latency='2 + dist')
@@ -124,7 +124,7 @@ control the wireless channel properties, such as \textit{bandwidth}, \textit{pac
 
 Alternatively, a new approach called wmediumd has been implemented, a wireless medium simulation tool for Linux, based on the netlink API implemented in the mac80211\_hwsim kernel driver. A couple of sample files that use wmediumd are available at /examples.\\
 
-\noindent \textbf{$\ast$ Question \themycounter.\thequestion{}\stepcounter{question}: Run wifiPosition.py again and try \textit{sta1 tc qdisc} before and after moving sta1 to the new position. What do you can conclude about the configuration applied by tc?}
+\noindent \textbf{$\ast$ Question \themycounter.\thequestion{}\stepcounter{question}: Run position.py again and try \textit{sta1 tc qdisc} before and after moving sta1 to the new position. What do you can conclude about the configuration applied by tc?}
 \\
 
 
@@ -140,15 +140,15 @@ Alternatively, a new approach called wmediumd has been implemented, a wireless m
 \subsection{Activity \themycounter{}: Mobility}  
 
 
-\noindent Open examples/wifiMobilityModel.py with any text editor and change the velocity of stations as below:
+\noindent Open examples/mobilityModel.py with any text editor and change the velocity of stations as below:
 \begin{minted}[breaklines]{bash}
    from: net.startMobility(time=0, model='RandomDirection', max_x=100, max_y=100, min_v=0.5, max_v=0.8)
    to: net.startMobility(time=0, model='RandomDirection', max_x=100, max_y=100, min_v=0.1, max_v=0.1)
 \end{minted}
 
-\noindent Run examples/wifiMobilityModel.py and change the signal range of ap1:
+\noindent Run examples/mobilityModel.py and change the signal range of ap1:
 \begin{minted}{bash}
-    python examples/wifiMobilityModel.py
+    python examples/mobilityModel.py
     mininet-wifi>py ap1.setRange(60)
 \end{minted}
 
@@ -165,7 +165,7 @@ Alternatively, a new approach called wmediumd has been implemented, a wireless m
 \setcounter{question}{1}
 \subsection{Activity \themycounter{}: Received Signal Strength} 
 
-\noindent Open examples/wifiPosition.py with any text editor and add sta3 at position='10,10,10' and set max\_z=100 in order to plot a 3d graph. Then, run examples/wifiPosition.py.\\
+\noindent Open examples/position.py with any text editor and add sta3 at position='10,10,10' and set max\_z=100 in order to plot a 3d graph. Then, run examples/position.py.\\
 
 \noindent \textbf{$\ast$ Question \themycounter.\thequestion{}\stepcounter{question}: What is the received signal strength indicator (RSSI) observed from sta3?}
 \\
