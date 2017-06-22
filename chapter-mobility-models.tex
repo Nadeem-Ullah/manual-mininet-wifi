@@ -4,7 +4,7 @@
 Mininet-WiFi supports the following mobility models: \texttt{RandomWalk}, \texttt{TruncatedLevyWalk}, \texttt{RandomDirection}, \texttt{RandomWayPoint}, \texttt{GaussMarkov}, \texttt{ReferencePoint} and \texttt{TimeVariantCommunity}.
 
 \section{How to add Mobility?}
-To use those mobility models you have to call the method net.startMobility() like in \textit{examples/wifiMobilityModel.py}. You may also have to consider the use of the files \textit{examples/wifiMobility.py} and \textit{examples/tracingMobility.py} if you want a different type of mobility. Another alternative is to consider some parameters for specifics mobility models (not mandatory), for example:
+To use those mobility models you have to call the method net.startMobility() like in \textit{examples/mobilityModel.py}. You may also have to consider the use of \textit{examples/wmobility.py} if you want a different type of mobility. Another alternative is to consider some parameters for specifics mobility models (not mandatory), for example:
 
 \subsubsection{RandomWalk}
 
@@ -55,10 +55,4 @@ min_x = Minimum X position
 max_x = Maximum X position
 min_y = Minimum Y position
 max_y = Maximum Y position
-
 \end{minted}
-
-
-\begin{remark}
-Thank you Mark Zeng (n660123@gmail.com) for recommending us the limit of the node motion.
-\end{remark}
