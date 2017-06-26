@@ -303,12 +303,18 @@ The example below enables 802.11r.
 The example below enables 8021x.
 
 \begin{minted}[breaklines]{bash}
-    ap1 = net.addAccessPoint( 'ap1', ... mode="8021x", encrypt='wpa2', enable_radius='yes'...
+    ap1 = net.addAccessPoint( 'ap1', ... mode="8021x", encrypt='wpa2', enable_radius='yes'...)
+\end{minted}
+
+\noindent Further configuration includes \textit{radius\_server} and \textit{shared\_secret}:
+
+\begin{minted}[breaklines]{bash}
+    ap1 = net.addAccessPoint( 'ap1', ... mode="8021x", encrypt='wpa2', enable_radius='yes', radius_server=127.0.0.1, shared_secret=secret ...)
 \end{minted}
 
 \subsection{Support to bgscan (Background scanning)}\index{bgscan}
 
-\texttt{wpa\_supplicant} behavior for background scanning can be specified by configuring a bgscan module. These modules are responsible for requesting background scans for the purpose of roaming within an ESS (i.e., within a single network block with all the APs using the same SSID). You can enable bgscan calling setBgscan(), for example:
+\texttt{wpa\_supplicant} behavior for background scanning can be specified by configuring a bgscan module. This module is responsible for requesting background scans for the purpose of roaming within an ESS (i.e., within a single network block with all the APs using the same SSID). You can enable bgscan calling setBgscan(), for example:
 
 \begin{minted}[breaklines]{bash}
     net.setBgscan()
