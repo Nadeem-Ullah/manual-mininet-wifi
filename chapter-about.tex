@@ -305,7 +305,7 @@ The example below enables 802.11r.
 The example below enables 8021x.
 
 \begin{minted}[breaklines]{bash}
-    ap1 = net.addAccessPoint( 'ap1', ... mode="8021x", encrypt='wpa2', enable_radius='yes'...)
+    ap1 = net.addAccessPoint( 'ap1', ... authmode="8021x", encrypt='wpa2', ...)
 \end{minted}
 
 \noindent Further configuration includes \textit{radius\_server} and \textit{shared\_secret}:

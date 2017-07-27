@@ -718,7 +718,7 @@ To move a station in a straight line, use the \texttt{net.StartMobility} and \te
 
     
 
-Mininet-WiFi can also automatically move stations around based on predefined mobility models. See the example script \texttt{wifiMobilityModel.py}. Available mobility models are: \texttt{RandomWalk}, \texttt{TruncatedLevyWalk}, \texttt{RandomDirection}, \texttt{RandomWayPoint}, \texttt{GaussMarkov}, \texttt{ReferencePoint}, and \texttt{TimeVariantCommunity}. For example, to move a station around in an area 60 meters by 60 meters with a minimum velocity of 0.1 meters per second and a maximum velocity of 0.2 meters per second, add the following line to your script:
+Mininet-WiFi can also automatically move stations around based on predefined mobility models. See the example script \texttt{mobilityModel.py}. Available mobility models are: \texttt{RandomWalk}, \texttt{TruncatedLevyWalk}, \texttt{RandomDirection}, \texttt{RandomWayPoint}, \texttt{GaussMarkov}, \texttt{ReferencePoint}, and \texttt{TimeVariantCommunity}. For example, to move a station around in an area 60 meters by 60 meters with a minimum velocity of 0.1 meters per second and a maximum velocity of 0.2 meters per second, add the following line to your script:
 
 \begin{minted}[breaklines]{bash}
     net.startMobility(time=0, model='RandomDirection', max_x=60, max_y=60, min_v=0.1, max_v=0.2)
@@ -863,16 +863,14 @@ The Mininet-WiFi developers created many example scripts that show examples of m
 
 \texttt{adhoc} shows how to set up experiments with  adhoc mode, where stations connect to each other without passing through an access point.
 \texttt{simplewifitopology} show the Python code that create the same topology as the default topology created my the \texttt{mn --wifi} command (two stations and one access point).
-\texttt{wifiStationsAndHosts} creates a topology with stations and hosts
-\texttt{2AccessPoints} to create a topology with two access points connected to each other via an Ethernet link and two stations associated with each access point.
-\texttt{wifiPosition.py} shows how to create a network where stations and access points are places in specific locations in virtual space.
-\texttt{wifiMobility} and \texttt{wifiMobilityModel} show how to move stations and how mobility models can be incorporated into scripts.
+\texttt{position.py} shows how to create a network where stations and access points are places in specific locations in virtual space.
+\texttt{mobility} and \texttt{mobilityModel} show how to move stations and how mobility models can be incorporated into scripts.
 \texttt{wifiAssociationControl} shows how the different values of the AC parameter affect station handoffs to access points.
 \texttt{wifimesh.py} shows how to set up a mesh network of stations.
 \texttt{handover.py} shows how to create a simple mobility scenario where a station moves past two access points, causing the station to hand off from one to the other. 
 \texttt{multipleWlan.py} shows how to create a station with more than one wireless LAN interface.
-\texttt{wifiPropagationModel.py} shows how to use propagation models that impact how stations and access points can communicate with each other over distance.
-\texttt{wifiAuthentication.py} shows how to set up WiFi encryption and passwords on access points and stations.
+\texttt{propagationModel.py} shows how to use propagation models that impact how stations and access points can communicate with each other over distance.
+\texttt{authentication.py} shows how to set up WiFi encryption and passwords on access points and stations.
 
 \section{Conclusion}
 
